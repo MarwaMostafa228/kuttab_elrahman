@@ -1,22 +1,32 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: كُتَّاب الرحمن - نظام إدارة دار تحفيظ القرآن الكريم
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
-    description: Health operations
+  - name: auth
+  - name: students
+  - name: circles
+  - name: memorization
+  - name: attendance
+  - name: vacations
+  - name: guardians
+  - name: payments
+  - name: expenses
+  - name: certificates
+  - name: exams
+  - name: analytics
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +34,1437 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ─── AUTH ────────────────────────────────────────────────────
+  /auth/sheikh/login:
+    post:
+      operationId: sheikhLogin
+      tags: [auth]
+      summary: Sheikh login with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SheikhLoginInput"
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+
+  /auth/sheikh/register:
+    post:
+      operationId: sheikhRegister
+      tags: [auth]
+      summary: Register a new sheikh with activation code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SheikhRegisterInput"
+      responses:
+        "201":
+          description: Registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Invalid activation code or email already used
+
+  /auth/student/login:
+    post:
+      operationId: studentLogin
+      tags: [auth]
+      summary: Student login with student code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudentLoginInput"
+      responses:
+        "200":
+          description: Logged in as student
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid student code
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout current user
+      responses:
+        "204":
+          description: Logged out
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current authenticated user info
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Unauthenticated
+
+  # ─── STUDENTS ────────────────────────────────────────────────
+  /students:
+    get:
+      operationId: listStudents
+      tags: [students]
+      summary: List all students
+      responses:
+        "200":
+          description: List of students
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Student"
+    post:
+      operationId: createStudent
+      tags: [students]
+      summary: Add a new student (auto-generates student code)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudentInput"
+      responses:
+        "201":
+          description: Created student
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+
+  /students/{id}:
+    get:
+      operationId: getStudent
+      tags: [students]
+      summary: Get a single student
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Student
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateStudent
+      tags: [students]
+      summary: Update student info
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudentUpdate"
+      responses:
+        "200":
+          description: Updated student
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+    delete:
+      operationId: deleteStudent
+      tags: [students]
+      summary: Delete a student
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── CIRCLES (HALAQAT) ───────────────────────────────────────
+  /circles:
+    get:
+      operationId: listCircles
+      tags: [circles]
+      summary: List all circles
+      responses:
+        "200":
+          description: List of circles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Circle"
+    post:
+      operationId: createCircle
+      tags: [circles]
+      summary: Create a new circle
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CircleInput"
+      responses:
+        "201":
+          description: Created circle
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Circle"
+
+  /circles/{id}:
+    get:
+      operationId: getCircle
+      tags: [circles]
+      summary: Get a single circle
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Circle
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Circle"
+    patch:
+      operationId: updateCircle
+      tags: [circles]
+      summary: Update circle
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CircleUpdate"
+      responses:
+        "200":
+          description: Updated circle
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Circle"
+    delete:
+      operationId: deleteCircle
+      tags: [circles]
+      summary: Delete a circle
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── MEMORIZATION ────────────────────────────────────────────
+  /memorization:
+    get:
+      operationId: listMemorization
+      tags: [memorization]
+      summary: List memorization records (filter by studentId or date)
+      parameters:
+        - name: studentId
+          in: query
+          schema:
+            type: integer
+        - name: date
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of memorization records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MemorizationRecord"
+    post:
+      operationId: createMemorization
+      tags: [memorization]
+      summary: Record daily memorization for a student
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MemorizationInput"
+      responses:
+        "201":
+          description: Created memorization record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MemorizationRecord"
+
+  /memorization/{id}:
+    patch:
+      operationId: updateMemorization
+      tags: [memorization]
+      summary: Update a memorization record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MemorizationUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MemorizationRecord"
+    delete:
+      operationId: deleteMemorization
+      tags: [memorization]
+      summary: Delete a memorization record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── ATTENDANCE ──────────────────────────────────────────────
+  /attendance:
+    get:
+      operationId: listAttendance
+      tags: [attendance]
+      summary: List attendance records (filter by date or studentId)
+      parameters:
+        - name: studentId
+          in: query
+          schema:
+            type: integer
+        - name: date
+          in: query
+          schema:
+            type: string
+        - name: circleId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Attendance records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AttendanceRecord"
+    post:
+      operationId: recordAttendance
+      tags: [attendance]
+      summary: Record attendance for a student
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AttendanceInput"
+      responses:
+        "201":
+          description: Attendance recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttendanceRecord"
+
+  /attendance/{id}:
+    patch:
+      operationId: updateAttendance
+      tags: [attendance]
+      summary: Update attendance record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AttendanceUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttendanceRecord"
+
+  # ─── VACATIONS (IJAZAT) ──────────────────────────────────────
+  /vacations:
+    get:
+      operationId: listVacations
+      tags: [vacations]
+      summary: List granted vacations
+      parameters:
+        - name: studentId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Vacations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Vacation"
+    post:
+      operationId: createVacation
+      tags: [vacations]
+      summary: Grant a vacation to a student
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VacationInput"
+      responses:
+        "201":
+          description: Vacation granted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Vacation"
+
+  /vacations/{id}:
+    delete:
+      operationId: deleteVacation
+      tags: [vacations]
+      summary: Delete a vacation record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── GUARDIANS ───────────────────────────────────────────────
+  /guardians:
+    get:
+      operationId: listGuardians
+      tags: [guardians]
+      summary: List guardians
+      parameters:
+        - name: studentId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Guardians
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Guardian"
+    post:
+      operationId: createGuardian
+      tags: [guardians]
+      summary: Add guardian info for a student
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GuardianInput"
+      responses:
+        "201":
+          description: Guardian created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Guardian"
+
+  /guardians/{id}:
+    patch:
+      operationId: updateGuardian
+      tags: [guardians]
+      summary: Update guardian info
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GuardianUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Guardian"
+
+  # ─── PAYMENTS ────────────────────────────────────────────────
+  /payments:
+    get:
+      operationId: listPayments
+      tags: [payments]
+      summary: List payment records
+      parameters:
+        - name: studentId
+          in: query
+          schema:
+            type: integer
+        - name: month
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Payments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Payment"
+    post:
+      operationId: createPayment
+      tags: [payments]
+      summary: Record a payment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentInput"
+      responses:
+        "201":
+          description: Payment recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+
+  /payments/{id}:
+    delete:
+      operationId: deletePayment
+      tags: [payments]
+      summary: Delete a payment record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── EXPENSES ────────────────────────────────────────────────
+  /expenses:
+    get:
+      operationId: listExpenses
+      tags: [expenses]
+      summary: List kuttab expenses
+      responses:
+        "200":
+          description: Expenses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Expense"
+    post:
+      operationId: createExpense
+      tags: [expenses]
+      summary: Record an expense
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExpenseInput"
+      responses:
+        "201":
+          description: Expense recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Expense"
+
+  /expenses/{id}:
+    delete:
+      operationId: deleteExpense
+      tags: [expenses]
+      summary: Delete an expense
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── CERTIFICATES ────────────────────────────────────────────
+  /certificates:
+    get:
+      operationId: listCertificates
+      tags: [certificates]
+      summary: List issued certificates
+      parameters:
+        - name: studentId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Certificates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Certificate"
+    post:
+      operationId: createCertificate
+      tags: [certificates]
+      summary: Issue a certificate for a student
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CertificateInput"
+      responses:
+        "201":
+          description: Certificate issued
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Certificate"
+
+  /certificates/{id}:
+    delete:
+      operationId: deleteCertificate
+      tags: [certificates]
+      summary: Delete a certificate
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── EXAMS ───────────────────────────────────────────────────
+  /exams:
+    get:
+      operationId: listExams
+      tags: [exams]
+      summary: List exams and competitions
+      responses:
+        "200":
+          description: Exams
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Exam"
+    post:
+      operationId: createExam
+      tags: [exams]
+      summary: Create an exam or competition
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExamInput"
+      responses:
+        "201":
+          description: Exam created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Exam"
+
+  /exams/{id}:
+    delete:
+      operationId: deleteExam
+      tags: [exams]
+      summary: Delete an exam
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /exam-results:
+    get:
+      operationId: listExamResults
+      tags: [exams]
+      summary: List exam results
+      parameters:
+        - name: examId
+          in: query
+          schema:
+            type: integer
+        - name: studentId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Exam results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ExamResult"
+    post:
+      operationId: createExamResult
+      tags: [exams]
+      summary: Record an exam result for a student
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExamResultInput"
+      responses:
+        "201":
+          description: Result recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamResult"
+
+  # ─── ANALYTICS ───────────────────────────────────────────────
+  /analytics/overview:
+    get:
+      operationId: getAnalyticsOverview
+      tags: [analytics]
+      summary: Dashboard overview with stats (attendance rate, memorization progress, payments)
+      responses:
+        "200":
+          description: Overview stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnalyticsOverview"
+
+  /analytics/students/{id}:
+    get:
+      operationId: getStudentAnalytics
+      tags: [analytics]
+      summary: Per-student analytics — memorization progress and attendance
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Student analytics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentAnalytics"
+
 components:
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
         status:
           type: string
-      required:
-        - status
 
+    # ─── AUTH SCHEMAS ─────────────────────────────────────────
+    SheikhLoginInput:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+
+    SheikhRegisterInput:
+      type: object
+      required: [email, password, activationCode, name]
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        activationCode:
+          type: string
+        name:
+          type: string
+
+    StudentLoginInput:
+      type: object
+      required: [studentCode]
+      properties:
+        studentCode:
+          type: string
+
+    AuthResponse:
+      type: object
+      required: [role, userId]
+      properties:
+        role:
+          type: string
+          enum: [sheikh, student]
+        userId:
+          type: integer
+        name:
+          type: ["string", "null"]
+        email:
+          type: ["string", "null"]
+        studentCode:
+          type: ["string", "null"]
+        studentId:
+          type: ["integer", "null"]
+
+    # ─── STUDENT SCHEMAS ──────────────────────────────────────
+    Student:
+      type: object
+      required: [id, name, studentCode, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        studentCode:
+          type: string
+        phone:
+          type: ["string", "null"]
+        dateOfBirth:
+          type: ["string", "null"]
+        enrollmentDate:
+          type: ["string", "null"]
+        circleId:
+          type: ["integer", "null"]
+        circleName:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    StudentInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+        dateOfBirth:
+          type: string
+        enrollmentDate:
+          type: string
+        circleId:
+          type: integer
+        notes:
+          type: string
+
+    StudentUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+        dateOfBirth:
+          type: string
+        enrollmentDate:
+          type: string
+        circleId:
+          type: ["integer", "null"]
+        notes:
+          type: string
+
+    # ─── CIRCLE SCHEMAS ───────────────────────────────────────
+    Circle:
+      type: object
+      required: [id, name, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: ["string", "null"]
+        schedule:
+          type: ["string", "null"]
+        onlineLink:
+          type: ["string", "null"]
+        studentCount:
+          type: integer
+        createdAt:
+          type: string
+
+    CircleInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        schedule:
+          type: string
+        onlineLink:
+          type: string
+
+    CircleUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        schedule:
+          type: string
+        onlineLink:
+          type: string
+
+    # ─── MEMORIZATION SCHEMAS ─────────────────────────────────
+    MemorizationRecord:
+      type: object
+      required: [id, studentId, studentName, surahName, fromVerse, toVerse, rating, date, createdAt]
+      properties:
+        id:
+          type: integer
+        studentId:
+          type: integer
+        studentName:
+          type: string
+        surahName:
+          type: string
+        fromVerse:
+          type: integer
+        toVerse:
+          type: integer
+        rating:
+          type: string
+          enum: [ممتاز, جيد جداً, جيد, مقبول, ضعيف]
+        notes:
+          type: ["string", "null"]
+        date:
+          type: string
+        createdAt:
+          type: string
+
+    MemorizationInput:
+      type: object
+      required: [studentId, surahName, fromVerse, toVerse, rating, date]
+      properties:
+        studentId:
+          type: integer
+        surahName:
+          type: string
+        fromVerse:
+          type: integer
+        toVerse:
+          type: integer
+        rating:
+          type: string
+        notes:
+          type: string
+        date:
+          type: string
+
+    MemorizationUpdate:
+      type: object
+      properties:
+        surahName:
+          type: string
+        fromVerse:
+          type: integer
+        toVerse:
+          type: integer
+        rating:
+          type: string
+        notes:
+          type: string
+
+    # ─── ATTENDANCE SCHEMAS ───────────────────────────────────
+    AttendanceRecord:
+      type: object
+      required: [id, studentId, studentName, date, status, createdAt]
+      properties:
+        id:
+          type: integer
+        studentId:
+          type: integer
+        studentName:
+          type: string
+        circleId:
+          type: ["integer", "null"]
+        circleName:
+          type: ["string", "null"]
+        date:
+          type: string
+        status:
+          type: string
+          enum: [حاضر, غائب, متأخر, معذور]
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    AttendanceInput:
+      type: object
+      required: [studentId, date, status]
+      properties:
+        studentId:
+          type: integer
+        circleId:
+          type: integer
+        date:
+          type: string
+        status:
+          type: string
+        notes:
+          type: string
+
+    AttendanceUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+        notes:
+          type: string
+
+    # ─── VACATION SCHEMAS ─────────────────────────────────────
+    Vacation:
+      type: object
+      required: [id, studentId, studentName, startDate, endDate, reason, createdAt]
+      properties:
+        id:
+          type: integer
+        studentId:
+          type: integer
+        studentName:
+          type: string
+        startDate:
+          type: string
+        endDate:
+          type: string
+        reason:
+          type: string
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    VacationInput:
+      type: object
+      required: [studentId, startDate, endDate, reason]
+      properties:
+        studentId:
+          type: integer
+        startDate:
+          type: string
+        endDate:
+          type: string
+        reason:
+          type: string
+        notes:
+          type: string
+
+    # ─── GUARDIAN SCHEMAS ─────────────────────────────────────
+    Guardian:
+      type: object
+      required: [id, studentId, studentName, name, relationship, createdAt]
+      properties:
+        id:
+          type: integer
+        studentId:
+          type: integer
+        studentName:
+          type: string
+        name:
+          type: string
+        relationship:
+          type: string
+        phone:
+          type: ["string", "null"]
+        email:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    GuardianInput:
+      type: object
+      required: [studentId, name, relationship]
+      properties:
+        studentId:
+          type: integer
+        name:
+          type: string
+        relationship:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        notes:
+          type: string
+
+    GuardianUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        relationship:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        notes:
+          type: string
+
+    # ─── PAYMENT SCHEMAS ──────────────────────────────────────
+    Payment:
+      type: object
+      required: [id, studentId, studentName, amount, month, paidAt, createdAt]
+      properties:
+        id:
+          type: integer
+        studentId:
+          type: integer
+        studentName:
+          type: string
+        amount:
+          type: number
+        month:
+          type: string
+        notes:
+          type: ["string", "null"]
+        paidAt:
+          type: string
+        createdAt:
+          type: string
+
+    PaymentInput:
+      type: object
+      required: [studentId, amount, month]
+      properties:
+        studentId:
+          type: integer
+        amount:
+          type: number
+        month:
+          type: string
+        notes:
+          type: string
+        paidAt:
+          type: string
+
+    # ─── EXPENSE SCHEMAS ──────────────────────────────────────
+    Expense:
+      type: object
+      required: [id, title, amount, category, date, createdAt]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        amount:
+          type: number
+        category:
+          type: string
+        date:
+          type: string
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    ExpenseInput:
+      type: object
+      required: [title, amount, category, date]
+      properties:
+        title:
+          type: string
+        amount:
+          type: number
+        category:
+          type: string
+        date:
+          type: string
+        notes:
+          type: string
+
+    # ─── CERTIFICATE SCHEMAS ──────────────────────────────────
+    Certificate:
+      type: object
+      required: [id, studentId, studentName, title, issuedAt, createdAt]
+      properties:
+        id:
+          type: integer
+        studentId:
+          type: integer
+        studentName:
+          type: string
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        issuedAt:
+          type: string
+        createdAt:
+          type: string
+
+    CertificateInput:
+      type: object
+      required: [studentId, title, issuedAt]
+      properties:
+        studentId:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        issuedAt:
+          type: string
+
+    # ─── EXAM SCHEMAS ─────────────────────────────────────────
+    Exam:
+      type: object
+      required: [id, title, type, date, createdAt]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        type:
+          type: string
+          enum: [اختبار, مسابقة]
+        date:
+          type: string
+        description:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    ExamInput:
+      type: object
+      required: [title, type, date]
+      properties:
+        title:
+          type: string
+        type:
+          type: string
+        date:
+          type: string
+        description:
+          type: string
+
+    ExamResult:
+      type: object
+      required: [id, examId, examTitle, studentId, studentName, score, createdAt]
+      properties:
+        id:
+          type: integer
+        examId:
+          type: integer
+        examTitle:
+          type: string
+        studentId:
+          type: integer
+        studentName:
+          type: string
+        score:
+          type: number
+        grade:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    ExamResultInput:
+      type: object
+      required: [examId, studentId, score]
+      properties:
+        examId:
+          type: integer
+        studentId:
+          type: integer
+        score:
+          type: number
+        grade:
+          type: string
+        notes:
+          type: string
+
+    # ─── ANALYTICS SCHEMAS ────────────────────────────────────
+    AnalyticsOverview:
+      type: object
+      required: [totalStudents, totalCircles, attendanceRate, totalMemorizationDays, totalPaymentsThisMonth, totalExpensesThisMonth, recentActivity]
+      properties:
+        totalStudents:
+          type: integer
+        totalCircles:
+          type: integer
+        attendanceRate:
+          type: number
+        totalMemorizationDays:
+          type: integer
+        totalPaymentsThisMonth:
+          type: number
+        totalExpensesThisMonth:
+          type: number
+        topStudents:
+          type: array
+          items:
+            type: object
+            required: [studentId, name, memorizationDays]
+            properties:
+              studentId:
+                type: integer
+              name:
+                type: string
+              memorizationDays:
+                type: integer
+        recentActivity:
+          type: array
+          items:
+            type: object
+            required: [type, description, date]
+            properties:
+              type:
+                type: string
+              description:
+                type: string
+              date:
+                type: string
+
+    StudentAnalytics:
+      type: object
+      required: [studentId, name, studentCode, attendanceRate, totalMemorizationDays, totalPayments]
+      properties:
+        studentId:
+          type: integer
+        name:
+          type: string
+        studentCode:
+          type: string
+        attendanceRate:
+          type: number
+        totalMemorizationDays:
+          type: integer
+        totalPayments:
+          type: number
+        memorizationHistory:
+          type: array
+          items:
+            type: object
+            required: [date, surahName, fromVerse, toVerse, rating]
+            properties:
+              date:
+                type: string
+              surahName:
+                type: string
+              fromVerse:
+                type: integer
+              toVerse:
+                type: integer
+              rating:
+                type: string
+        attendanceHistory:
+          type: array
+          items:
+            type: object
+            required: [date, status]
+            properties:
+              date:
+                type: string
+              status:
+                type: string
