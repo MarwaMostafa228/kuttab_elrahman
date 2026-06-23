@@ -3,13 +3,11 @@ import { Link, useLocation } from "wouter";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLogout } from "@workspace/api-client-react";
 import {
-  LayoutDashboard,
   Users,
   Circle,
   BookOpen,
   CheckSquare,
   Palmtree,
-  UsersRound,
   Wallet,
   Receipt,
   Award,
@@ -26,13 +24,11 @@ import {
 } from "@/components/ui/sheet";
 
 const NAV_ITEMS = [
-  { href: "/dashboard", label: "لوحة التحكم", icon: LayoutDashboard },
   { href: "/students", label: "الطلاب", icon: Users },
   { href: "/circles", label: "الحلقات", icon: Circle },
   { href: "/memorization", label: "متابعة الحفظ", icon: BookOpen },
   { href: "/attendance", label: "الحضور والغياب", icon: CheckSquare },
   { href: "/vacations", label: "الإجازات", icon: Palmtree },
-  { href: "/guardians", label: "أولياء الأمور", icon: UsersRound },
   { href: "/payments", label: "الدفعات", icon: Wallet },
   { href: "/expenses", label: "المصروفات", icon: Receipt },
   { href: "/certificates", label: "الشهادات", icon: Award },
@@ -60,7 +56,7 @@ function SidebarContent() {
       </div>
       <div className="flex-1 overflow-y-auto px-4 py-2 space-y-1">
         {NAV_ITEMS.map((item) => {
-          const isActive = location === item.href || (item.href !== "/dashboard" && location.startsWith(item.href));
+          const isActive = location === item.href || (location.startsWith(item.href + "/"));
           const Icon = item.icon;
           return (
             <Link key={item.href} href={item.href} className={`flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors ${isActive ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'hover:bg-sidebar-accent/50'}`} data-testid={`nav-${item.href.replace('/', '')}`}>

@@ -1,24 +1,23 @@
 import React from "react";
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { StudentLayout } from "@/components/layout/StudentLayout";
 import { useAuth } from "@/contexts/AuthContext";
-import { useGetStudentAnalytics, useListMemorization, useListAttendance, useListCircles } from "@workspace/api-client-react";
+import { useGetStudentAnalytics, useListMemorization, useListAttendance, useGetStudent } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, CheckSquare, Calendar, Video, Wallet } from "lucide-react";
+import { BookOpen, CheckSquare, Calendar, Wallet, MessageSquare } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 
 export default function StudentPortalPage() {
   const { studentId } = useAuth();
-  
-  const { data: analytics, isLoading: analyticsLoading } = useGetStudentAnalytics(studentId as number, { query: { enabled: !!studentId } });
-  const { data: memorization, isLoading: memoLoading } = useListMemorization({ studentId: studentId as number }, { query: { enabled: !!studentId } });
-  const { data: attendance, isLoading: attLoading } = useListAttendance({ studentId: studentId as number }, { query: { enabled: !!studentId } });
-  const { data: circles } = useListCircles();
+
+  const { data: student } = useGetStudent(studentId as number, { query: { queryKey: [`/api/students/${studentId}`] as const, enabled: !!studentId } });
+  const { data: analytics, isLoading: analyticsLoading } = useGetStudentAnalytics(studentId as number, { query: { queryKey: [`/api/analytics/student/${studentId}`] as const, enabled: !!studentId } });
+  const { data: memorization, isLoading: memoLoading } = useListMemorization({ studentId: studentId as number }, { query: { queryKey: ["/api/memorization", { studentId }] as const, enabled: !!studentId } });
+  const { data: attendance, isLoading: attLoading } = useListAttendance({ studentId: studentId as number }, { query: { queryKey: ["/api/attendance", { studentId }] as const, enabled: !!studentId } });
 
   if (analyticsLoading || memoLoading || attLoading) {
-    return <StudentLayout><div className="flex justify-center py-20"><Spinner size="lg" className="text-primary" /></div></StudentLayout>;
+    return <StudentLayout><div className="flex justify-center py-20"><Spinner className="w-8 h-8 text-primary" /></div></StudentLayout>;
   }
 
   const getRatingColor = (rating: string) => {
@@ -44,6 +43,7 @@ export default function StudentPortalPage() {
 
   return (
     <StudentLayout>
+      {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <Card className="bg-primary/5 border-primary/20">
           <CardContent className="p-4 flex flex-col items-center text-center">
@@ -77,7 +77,23 @@ export default function StudentPortalPage() {
         </Card>
       </div>
 
+      {/* Sheikh notes — visible to student */}
+      {student?.notes && (
+        <Card className="mb-6 bg-primary/5 border-primary/20">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <MessageSquare className="w-4 h-4 text-primary" />
+              ملاحظة من الشيخ
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm leading-relaxed">{student.notes}</p>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Memorization */}
         <Card className="shadow-sm border-border">
           <CardHeader className="bg-muted/30 border-b pb-4">
             <CardTitle className="font-serif text-xl flex items-center gap-2">
@@ -100,7 +116,7 @@ export default function StudentPortalPage() {
                     <TableCell className="text-sm">{new Date(record.date).toLocaleDateString('ar-EG')}</TableCell>
                     <TableCell>
                       <span className="font-bold">{record.surahName}</span>
-                      <span className="text-xs text-muted-foreground block">{record.fromVerse} - {record.toVerse}</span>
+                      <span className="text-xs text-muted-foreground block" dir="ltr">{record.fromVerse} - {record.toVerse}</span>
                     </TableCell>
                     <TableCell className="text-center">
                       <Badge variant="outline" className={getRatingColor(record.rating)}>{record.rating}</Badge>
@@ -117,6 +133,7 @@ export default function StudentPortalPage() {
           </CardContent>
         </Card>
 
+        {/* Attendance */}
         <Card className="shadow-sm border-border">
           <CardHeader className="bg-muted/30 border-b pb-4">
             <CardTitle className="font-serif text-xl flex items-center gap-2">

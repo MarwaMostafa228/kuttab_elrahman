@@ -12,6 +12,7 @@ export const students = pgTable("students", {
   enrollmentDate: date("enrollment_date", { mode: "string" }),
   circleId: integer("circle_id").references(() => circles.id),
   notes: text("notes"),
+  guardianNotes: text("guardian_notes"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

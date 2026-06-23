@@ -14,4 +14,5 @@ export interface StudentUpdate {
   /** @nullable */
   circleId?: number | null;
   notes?: string;
+  guardianNotes?: string;
 }

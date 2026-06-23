@@ -22,5 +22,7 @@ export interface Student {
   circleName?: string | null;
   /** @nullable */
   notes?: string | null;
+  /** @nullable */
+  guardianNotes?: string | null;
   createdAt: string;
 }

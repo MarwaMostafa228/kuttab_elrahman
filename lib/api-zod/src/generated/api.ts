@@ -88,6 +88,7 @@ export const ListStudentsResponseItem = zod.object({
   "circleId": zod.number().nullish(),
   "circleName": zod.string().nullish(),
   "notes": zod.string().nullish(),
+  "guardianNotes": zod.string().nullish(),
   "createdAt": zod.string()
 })
 export const ListStudentsResponse = zod.array(ListStudentsResponseItem)
@@ -123,6 +124,7 @@ export const GetStudentResponse = zod.object({
   "circleId": zod.number().nullish(),
   "circleName": zod.string().nullish(),
   "notes": zod.string().nullish(),
+  "guardianNotes": zod.string().nullish(),
   "createdAt": zod.string()
 })
 
@@ -140,7 +142,8 @@ export const UpdateStudentBody = zod.object({
   "dateOfBirth": zod.string().optional(),
   "enrollmentDate": zod.string().optional(),
   "circleId": zod.number().nullish(),
-  "notes": zod.string().optional()
+  "notes": zod.string().optional(),
+  "guardianNotes": zod.string().optional()
 })
 
 export const UpdateStudentResponse = zod.object({
@@ -153,6 +156,7 @@ export const UpdateStudentResponse = zod.object({
   "circleId": zod.number().nullish(),
   "circleName": zod.string().nullish(),
   "notes": zod.string().nullish(),
+  "guardianNotes": zod.string().nullish(),
   "createdAt": zod.string()
 })
 

@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from "react";
+import React from "react";
 import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -8,14 +8,13 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import NotFound from "@/pages/not-found";
 
 import AuthPage from "@/pages/AuthPage";
-import DashboardPage from "@/pages/DashboardPage";
 import StudentsPage from "@/pages/StudentsPage";
+import StudentDetailPage from "@/pages/StudentDetailPage";
 import CirclesPage from "@/pages/CirclesPage";
 import StudentPortalPage from "@/pages/StudentPortalPage";
 import MemorizationPage from "@/pages/MemorizationPage";
 import AttendancePage from "@/pages/AttendancePage";
 import VacationsPage from "@/pages/VacationsPage";
-import GuardiansPage from "@/pages/GuardiansPage";
 import PaymentsPage from "@/pages/PaymentsPage";
 import ExpensesPage from "@/pages/ExpensesPage";
 import CertificatesPage from "@/pages/CertificatesPage";
@@ -29,13 +28,13 @@ function Router() {
     <Switch>
       <Route path="/" component={AuthPage} />
       <Route path="/auth" component={AuthPage} />
-      
+
       {/* Sheikh Routes */}
-      <Route path="/dashboard">
-        {() => <ProtectedRoute allowedRole="sheikh"><DashboardPage /></ProtectedRoute>}
-      </Route>
       <Route path="/students">
         {() => <ProtectedRoute allowedRole="sheikh"><StudentsPage /></ProtectedRoute>}
+      </Route>
+      <Route path="/students/:id">
+        {(params) => <ProtectedRoute allowedRole="sheikh"><StudentDetailPage id={Number(params.id)} /></ProtectedRoute>}
       </Route>
       <Route path="/circles">
         {() => <ProtectedRoute allowedRole="sheikh"><CirclesPage /></ProtectedRoute>}
@@ -48,9 +47,6 @@ function Router() {
       </Route>
       <Route path="/vacations">
         {() => <ProtectedRoute allowedRole="sheikh"><VacationsPage /></ProtectedRoute>}
-      </Route>
-      <Route path="/guardians">
-        {() => <ProtectedRoute allowedRole="sheikh"><GuardiansPage /></ProtectedRoute>}
       </Route>
       <Route path="/payments">
         {() => <ProtectedRoute allowedRole="sheikh"><PaymentsPage /></ProtectedRoute>}
@@ -70,7 +66,7 @@ function Router() {
 
       <Route path="/student-portal">
         {() => <ProtectedRoute allowedRole="student"><StudentPortalPage /></ProtectedRoute>}
-      </Route> 
+      </Route>
 
       <Route component={NotFound} />
     </Switch>

@@ -62,6 +62,8 @@ export interface Student {
   circleName?: string | null;
   /** @nullable */
   notes?: string | null;
+  /** @nullable */
+  guardianNotes?: string | null;
   createdAt: string;
 }
 
@@ -82,6 +84,7 @@ export interface StudentUpdate {
   /** @nullable */
   circleId?: number | null;
   notes?: string;
+  guardianNotes?: string;
 }
 
 export interface Circle {

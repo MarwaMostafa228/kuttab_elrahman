@@ -12,7 +12,7 @@ export default function DashboardPage() {
     return (
       <DashboardLayout>
         <div className="flex h-64 items-center justify-center">
-          <Spinner size="lg" className="text-primary" />
+          <Spinner className="w-8 h-8 text-primary" />
         </div>
       </DashboardLayout>
     );

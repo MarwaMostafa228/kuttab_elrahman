@@ -14,7 +14,7 @@ export default function AnalyticsPage() {
   const { data: students } = useListStudents();
   const { data: studentAnalytics, isLoading: studentLoading } = useGetStudentAnalytics(
     selectedStudentId as number, 
-    { query: { enabled: !!selectedStudentId } }
+    { query: { queryKey: [`/api/analytics/student/${selectedStudentId}`] as const, enabled: !!selectedStudentId } }
   );
 
   // Mock data for charts if none exists (just for visual since API doesn't return full time series)
@@ -50,7 +50,7 @@ export default function AnalyticsPage() {
       </div>
 
       {overviewLoading ? (
-        <div className="flex h-64 items-center justify-center"><Spinner size="lg" className="text-primary" /></div>
+        <div className="flex h-64 items-center justify-center"><Spinner className="w-8 h-8 text-primary" /></div>
       ) : selectedStudentId && studentAnalytics ? (
         // Student Specific Analytics
         <div className="space-y-6 animate-in fade-in">

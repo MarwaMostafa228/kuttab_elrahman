@@ -3,14 +3,14 @@ import { db, students, circles } from "@workspace/db";
 import { eq } from "drizzle-orm";
 
 function generateStudentCode(): string {
-  const digits = Math.floor(100000 + Math.random() * 900000);
+  const digits = Math.floor(1000 + Math.random() * 9000);
   return `KR-${digits}`;
 }
 
 async function getUniqueCode(): Promise<string> {
   let code = generateStudentCode();
   let attempts = 0;
-  while (attempts < 10) {
+  while (attempts < 20) {
     const [existing] = await db.select({ id: students.id }).from(students).where(eq(students.studentCode, code));
     if (!existing) return code;
     code = generateStudentCode();
@@ -33,6 +33,7 @@ router.get("/students", async (_req, res): Promise<void> => {
       circleId: students.circleId,
       circleName: circles.name,
       notes: students.notes,
+      guardianNotes: students.guardianNotes,
       createdAt: students.createdAt,
     })
     .from(students)
@@ -80,6 +81,7 @@ router.get("/students/:id", async (req, res): Promise<void> => {
       circleId: students.circleId,
       circleName: circles.name,
       notes: students.notes,
+      guardianNotes: students.guardianNotes,
       createdAt: students.createdAt,
     })
     .from(students)
@@ -97,11 +99,11 @@ router.get("/students/:id", async (req, res): Promise<void> => {
 router.patch("/students/:id", async (req, res): Promise<void> => {
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const id = parseInt(raw, 10);
-  const { name, phone, dateOfBirth, enrollmentDate, circleId, notes } = req.body;
+  const { name, phone, dateOfBirth, enrollmentDate, circleId, notes, guardianNotes } = req.body;
 
   const [student] = await db
     .update(students)
-    .set({ name, phone, dateOfBirth, enrollmentDate, circleId: circleId ?? null, notes })
+    .set({ name, phone, dateOfBirth, enrollmentDate, circleId: circleId ?? null, notes, guardianNotes })
     .where(eq(students.id, id))
     .returning();
 

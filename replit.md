@@ -36,7 +36,7 @@
 
 - Session-based auth (express-session) — sheikh sessions and student sessions share the same mechanism but different fields
 - Sheikh activation code is hardcoded as `sheikh@119955` — no Supabase needed
-- Student login uses a single unique code `KR-XXXXXX` — no email/password
+- Student login uses a single unique code `KR-XXXX` (4 digits) — no email/password
 - All API routes are under `/api`, frontend at `/`
 - RTL enforced at HTML root via `dir="rtl" lang="ar"`
 
@@ -49,7 +49,7 @@
 | Student | POST /api/auth/student/login | studentCode (e.g. `KR-100001`) |
 
 **Demo sheikh**: `sheikh@kuttab.com` / (register first with activation code `sheikh@119955`)  
-**Demo students**: `KR-100001` through `KR-100006`
+**Demo students**: `KR-100001` through `KR-100006` (existing seeded data, new students get 4-digit codes)
 
 ## DB Schema (tables)
 

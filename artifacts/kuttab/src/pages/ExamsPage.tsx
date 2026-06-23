@@ -42,7 +42,7 @@ export default function ExamsPage() {
   const { data: exams, isLoading: examsLoading } = useListExams();
   const { data: results, isLoading: resultsLoading } = useListExamResults(
     { examId: selectedExamId || undefined },
-    { query: { enabled: true } }
+    { query: { queryKey: ["/api/exam-results"] as const, enabled: true } }
   );
   const { data: students } = useListStudents();
   

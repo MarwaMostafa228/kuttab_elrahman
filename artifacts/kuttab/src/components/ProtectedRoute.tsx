@@ -7,7 +7,7 @@ export function ProtectedRoute({ children, allowedRole }: { children: ReactNode,
   const { role, isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
-    return <div className="h-screen w-full flex items-center justify-center bg-background"><Spinner size="lg" className="text-primary" /></div>;
+    return <div className="h-screen w-full flex items-center justify-center bg-background"><Spinner className="w-8 h-8 text-primary" /></div>;
   }
 
   if (!isAuthenticated || role !== allowedRole) {

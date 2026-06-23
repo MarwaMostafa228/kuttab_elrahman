@@ -16,8 +16,9 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const { data: user, isLoading: isQueryLoading, isError, error } = useGetMe({
+  const { data: user, isLoading: isQueryLoading, isError } = useGetMe({
     query: {
+      queryKey: ["/api/auth/me"] as const,
       retry: false,
     }
   });
