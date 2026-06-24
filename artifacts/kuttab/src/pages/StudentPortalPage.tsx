@@ -1,12 +1,20 @@
 import React from "react";
 import { StudentLayout } from "@/components/layout/StudentLayout";
 import { useAuth } from "@/contexts/AuthContext";
-import { useGetStudentAnalytics, useListMemorization, useListAttendance, useGetStudent } from "@workspace/api-client-react";
+import {
+  useGetStudentAnalytics,
+  useListMemorization,
+  useListAttendance,
+  useGetStudent,
+  useListCertificates,
+  getListCertificatesQueryKey,
+} from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, CheckSquare, Calendar, Wallet, MessageSquare } from "lucide-react";
+import { BookOpen, CheckSquare, Calendar, Wallet, MessageSquare, Award } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
+import { CertificateCard } from "@/components/CertificateCard";
 
 export default function StudentPortalPage() {
   const { studentId } = useAuth();
@@ -15,6 +23,10 @@ export default function StudentPortalPage() {
   const { data: analytics, isLoading: analyticsLoading } = useGetStudentAnalytics(studentId as number, { query: { queryKey: [`/api/analytics/student/${studentId}`] as const, enabled: !!studentId } });
   const { data: memorization, isLoading: memoLoading } = useListMemorization({ studentId: studentId as number }, { query: { queryKey: ["/api/memorization", { studentId }] as const, enabled: !!studentId } });
   const { data: attendance, isLoading: attLoading } = useListAttendance({ studentId: studentId as number }, { query: { queryKey: ["/api/attendance", { studentId }] as const, enabled: !!studentId } });
+  const { data: certificates } = useListCertificates(
+    { studentId: studentId as number },
+    { query: { queryKey: getListCertificatesQueryKey({ studentId: studentId as number }) as readonly unknown[], enabled: !!studentId } }
+  );
 
   if (analyticsLoading || memoLoading || attLoading) {
     return <StudentLayout><div className="flex justify-center py-20"><Spinner className="w-8 h-8 text-primary" /></div></StudentLayout>;
@@ -92,7 +104,7 @@ export default function StudentPortalPage() {
         </Card>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
         {/* Memorization */}
         <Card className="shadow-sm border-border">
           <CardHeader className="bg-muted/30 border-b pb-4">
@@ -168,6 +180,22 @@ export default function StudentPortalPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Certificates */}
+      {certificates && certificates.length > 0 && (
+        <div className="mt-2">
+          <div className="flex items-center gap-2 mb-4">
+            <Award className="w-5 h-5 text-secondary" />
+            <h2 className="text-lg font-bold text-primary">شهاداتي</h2>
+            <span className="text-xs text-muted-foreground">({certificates.length})</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {certificates.map(cert => (
+              <CertificateCard key={cert.id} cert={cert} studentName={student?.name ?? ""} />
+            ))}
+          </div>
+        </div>
+      )}
     </StudentLayout>
   );
 }
