@@ -14,11 +14,13 @@ import {
   useRecordAttendance,
   useUpdateAttendance,
   useListCircles,
+  useListCertificates,
   getGetStudentQueryKey,
   getListGuardiansQueryKey,
   getListPaymentsQueryKey,
   getListMemorizationQueryKey,
   getListAttendanceQueryKey,
+  getListCertificatesQueryKey,
 } from "@workspace/api-client-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -49,6 +51,8 @@ import {
   Edit,
   Save,
   Users,
+  Award,
+  Printer,
 } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 
@@ -124,6 +128,10 @@ export default function StudentDetailPage({ id }: Props) {
   const { data: memorization } = useListMemorization({ studentId: id });
   const { data: attendance } = useListAttendance({ studentId: id });
   const { data: circles } = useListCircles();
+  const { data: certificates } = useListCertificates(
+    { studentId: id },
+    { query: { queryKey: getListCertificatesQueryKey({ studentId: id }) as readonly unknown[], enabled: true } }
+  );
 
   const updateMutation = useUpdateStudent();
   const createGuardianMutation = useCreateGuardian();
@@ -677,7 +685,141 @@ export default function StudentDetailPage({ id }: Props) {
             </CardContent>
           </Card>
         </div>
+
+        {/* ── شهادات الطالب ── */}
+        {certificates && certificates.length > 0 && (
+          <div className="mt-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Award className="w-5 h-5 text-secondary" />
+              <h2 className="text-lg font-bold text-primary">شهادات التكريم</h2>
+              <span className="text-xs text-muted-foreground">({certificates.length})</span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {certificates.map(cert => (
+                <CertificateCard key={cert.id} cert={cert} studentName={student?.name ?? ""} />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </DashboardLayout>
+  );
+}
+
+function CertificateCard({ cert, studentName }: { cert: { id: number; title: string; description?: string | null; issuedAt: string }; studentName: string }) {
+  const handlePrint = () => {
+    const win = window.open("", "_blank");
+    if (!win) return;
+    const dateStr = new Date(cert.issuedAt).toLocaleDateString("ar-EG", { year: "numeric", month: "long", day: "numeric" });
+    win.document.write(`
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="UTF-8"/>
+<title>شهادة - ${studentName}</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #f7f3ec; display: flex; align-items: center; justify-content: center; min-height: 100vh; font-family: 'Cairo', sans-serif; }
+  .cert { width: 210mm; min-height: 148mm; background: #fff; padding: 8mm; position: relative; }
+  .outer-border { border: 4px double #1a4a30; padding: 6mm; height: 100%; position: relative; }
+  .inner-border { border: 1.5px solid #d4a017; padding: 6mm; height: 100%; text-align: center; }
+  .corner { position: absolute; width: 24px; height: 24px; }
+  .corner.tl { top: 4px; right: 4px; border-top: 2px solid #d4a017; border-right: 2px solid #d4a017; }
+  .corner.tr { top: 4px; left: 4px; border-top: 2px solid #d4a017; border-left: 2px solid #d4a017; }
+  .corner.bl { bottom: 4px; right: 4px; border-bottom: 2px solid #d4a017; border-right: 2px solid #d4a017; }
+  .corner.br { bottom: 4px; left: 4px; border-bottom: 2px solid #d4a017; border-left: 2px solid #d4a017; }
+  .logo { font-family: 'Amiri', serif; font-size: 32px; font-weight: 700; color: #1a4a30; margin-bottom: 2mm; }
+  .subtitle { font-size: 12px; color: #555; letter-spacing: 0.5px; margin-bottom: 4mm; }
+  .divider { width: 80%; height: 1px; background: linear-gradient(to left, transparent, #d4a017, transparent); margin: 3mm auto; }
+  .basmala { font-family: 'Amiri', serif; font-size: 18px; color: #1a4a30; margin: 3mm 0; }
+  .witness { font-size: 14px; color: #333; margin: 3mm 0; }
+  .student-name { font-family: 'Amiri', serif; font-size: 28px; font-weight: 700; color: #1a4a30; margin: 3mm 0; border-bottom: 2px solid #d4a017; display: inline-block; padding-bottom: 1mm; }
+  .cert-title { font-size: 20px; font-weight: 700; color: #d4a017; margin: 3mm 0; }
+  .desc { font-size: 13px; color: #555; margin: 2mm 0; line-height: 1.6; max-width: 85%; display: inline-block; }
+  .date-row { font-size: 12px; color: #777; margin-top: 5mm; }
+  .seal { width: 60px; height: 60px; border-radius: 50%; border: 3px solid #1a4a30; display: inline-flex; align-items: center; justify-content: center; margin-top: 4mm; font-family: 'Amiri', serif; font-size: 11px; color: #1a4a30; line-height: 1.3; }
+  @media print { body { background: white; } .cert { box-shadow: none; } }
+</style>
+</head>
+<body>
+<div class="cert">
+  <div class="outer-border">
+    <div class="inner-border">
+      <div class="corner tl"></div><div class="corner tr"></div>
+      <div class="corner bl"></div><div class="corner br"></div>
+      <div class="logo">كُتَّاب الرحمن</div>
+      <div class="subtitle">دار تحفيظ القرآن الكريم</div>
+      <div class="divider"></div>
+      <div class="basmala">بسم الله الرحمن الرحيم</div>
+      <div class="divider"></div>
+      <div class="witness">تشهد إدارة كُتَّاب الرحمن بأن الطالب/الطالبة</div>
+      <div class="student-name">${studentName}</div>
+      <div class="cert-title">${cert.title}</div>
+      ${cert.description ? `<div class="desc">${cert.description}</div>` : ""}
+      <div class="date-row">بتاريخ: ${dateStr}</div>
+      <div class="seal">ختم<br/>المؤسسة</div>
+    </div>
+  </div>
+</div>
+<script>window.onload = () => { window.print(); }</script>
+</body>
+</html>`);
+    win.document.close();
+  };
+
+  const dateStr = new Date(cert.issuedAt).toLocaleDateString("ar-EG", { year: "numeric", month: "long", day: "numeric" });
+
+  return (
+    <div className="relative rounded-xl overflow-hidden shadow-lg print:shadow-none" style={{ background: "linear-gradient(135deg, #f7f3ec 0%, #fff 50%, #f7f3ec 100%)" }}>
+      <div className="border-4 border-double border-primary m-1 rounded-lg">
+        <div className="border border-secondary/60 m-1.5 rounded p-5 text-center relative">
+          {/* Corner ornaments */}
+          <div className="absolute top-2 right-2 w-5 h-5 border-t-2 border-r-2 border-secondary rounded-tr" />
+          <div className="absolute top-2 left-2 w-5 h-5 border-t-2 border-l-2 border-secondary rounded-tl" />
+          <div className="absolute bottom-2 right-2 w-5 h-5 border-b-2 border-r-2 border-secondary rounded-br" />
+          <div className="absolute bottom-2 left-2 w-5 h-5 border-b-2 border-l-2 border-secondary rounded-bl" />
+
+          {/* Header */}
+          <div className="flex items-center justify-center gap-2 mb-1">
+            <Award className="w-5 h-5 text-secondary" />
+            <span className="font-serif text-xl font-bold text-primary" style={{ fontFamily: "Amiri, serif" }}>كُتَّاب الرحمن</span>
+            <Award className="w-5 h-5 text-secondary" />
+          </div>
+          <p className="text-[10px] text-muted-foreground tracking-wider mb-2">دار تحفيظ القرآن الكريم</p>
+
+          {/* Divider */}
+          <div className="h-px bg-gradient-to-r from-transparent via-secondary to-transparent mb-2" />
+          <p className="text-sm text-primary mb-2" style={{ fontFamily: "Amiri, serif" }}>بسم الله الرحمن الرحيم</p>
+          <div className="h-px bg-gradient-to-r from-transparent via-secondary to-transparent mb-3" />
+
+          {/* Witness text */}
+          <p className="text-xs text-muted-foreground mb-1">تشهد إدارة كُتَّاب الرحمن بأن الطالب/الطالبة</p>
+          <p className="text-2xl font-bold text-primary border-b-2 border-secondary inline-block pb-0.5 mb-2" style={{ fontFamily: "Amiri, serif" }}>
+            {studentName}
+          </p>
+
+          {/* Title */}
+          <p className="text-base font-bold text-secondary mt-1">{cert.title}</p>
+
+          {/* Description */}
+          {cert.description && (
+            <p className="text-xs text-muted-foreground mt-1 mx-4 leading-relaxed">{cert.description}</p>
+          )}
+
+          {/* Date */}
+          <p className="text-[11px] text-muted-foreground mt-3">بتاريخ: {dateStr}</p>
+
+          {/* Print button */}
+          <button
+            onClick={handlePrint}
+            className="mt-3 inline-flex items-center gap-1.5 text-xs text-primary/70 hover:text-primary border border-primary/20 hover:border-primary/50 rounded-full px-3 py-1 transition-colors"
+          >
+            <Printer className="w-3 h-3" />
+            طباعة الشهادة
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }

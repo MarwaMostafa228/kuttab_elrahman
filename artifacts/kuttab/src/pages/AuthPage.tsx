@@ -142,7 +142,7 @@ export default function AuthPage() {
                   <FormField control={formSheikhRegister.control} name="activationCode" render={({ field }) => (
                     <FormItem>
                       <FormLabel>كود التفعيل (من الإدارة)</FormLabel>
-                      <FormControl><Input placeholder="sheikh@119955" dir="ltr" className="text-left" {...field} /></FormControl>
+                      <FormControl><Input type="password" placeholder="••••••••" dir="ltr" className="text-left" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
