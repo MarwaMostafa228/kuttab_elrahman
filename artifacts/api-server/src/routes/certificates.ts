@@ -14,6 +14,7 @@ router.get("/certificates", async (req, res): Promise<void> => {
       studentName: students.name,
       title: certificates.title,
       description: certificates.description,
+      sheikhSignature: certificates.sheikhSignature,
       issuedAt: certificates.issuedAt,
       createdAt: certificates.createdAt,
     })
@@ -31,16 +32,16 @@ router.get("/certificates", async (req, res): Promise<void> => {
 });
 
 router.post("/certificates", async (req, res): Promise<void> => {
-  const { studentId, title, description, issuedAt } = req.body;
+  const { studentId, title, description, issuedAt, sheikhSignature } = req.body;
   if (!studentId || !title || !issuedAt) {
     res.status(400).json({ error: "الطالب والعنوان والتاريخ مطلوبة" });
     return;
   }
 
-  const [cert] = await db.insert(certificates).values({ studentId, title, description, issuedAt }).returning();
+  const [cert] = await db.insert(certificates).values({ studentId, title, description, issuedAt, sheikhSignature }).returning();
   const [student] = await db.select({ name: students.name }).from(students).where(eq(students.id, studentId));
 
-  res.status(201).json({ ...cert, studentName: student?.name ?? "", createdAt: cert.createdAt.toISOString() });
+  res.status(201).json({ ...cert, studentName: student?.name ?? "", sheikhSignature: cert.sheikhSignature ?? null, createdAt: cert.createdAt.toISOString() });
 });
 
 router.delete("/certificates/:id", async (req, res): Promise<void> => {

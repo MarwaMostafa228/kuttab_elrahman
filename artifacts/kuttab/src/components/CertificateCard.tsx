@@ -5,6 +5,7 @@ export interface CertData {
   id: number;
   title: string;
   description?: string | null;
+  sheikhSignature?: string | null;
   issuedAt: string;
 }
 
@@ -62,7 +63,7 @@ export function CertificateCard({ cert, studentName }: Props) {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2mm;
+    gap: 2.5mm;
   }
   .corner { position: absolute; width: 20px; height: 20px; }
   .corner.tl { top: 3px; right: 3px; border-top: 2px solid #d4a017; border-right: 2px solid #d4a017; }
@@ -78,9 +79,10 @@ export function CertificateCard({ cert, studentName }: Props) {
   .cert-title { font-size: 16px; font-weight: 700; color: #d4a017; }
   .desc { font-size: 12px; color: #666; line-height: 1.5; max-width: 80%; }
   .date { font-size: 11px; color: #888; }
-  .seal-row { display: flex; align-items: center; justify-content: center; gap: 20mm; margin-top: 1mm; }
-  .seal { width: 52px; height: 52px; border-radius: 50%; border: 2.5px solid #1a4a30; display: inline-flex; align-items: center; justify-content: center; font-family: 'Amiri', serif; font-size: 10px; color: #1a4a30; line-height: 1.3; text-align: center; }
-  .sign { font-size: 10px; color: #777; text-align: center; }
+  .sign-row { display: flex; align-items: flex-end; justify-content: center; gap: 20mm; margin-top: 2mm; }
+  .sign { font-size: 11px; color: #555; text-align: center; }
+  .sign .name-line { font-weight: 700; color: #1a4a30; font-size: 12px; margin-bottom: 1mm; }
+  .sign .underline { border-bottom: 1px solid #999; width: 40mm; margin: 0 auto; }
   @media print { body { background: white; } .cert { box-shadow: none; } }
 </style>
 </head>
@@ -90,7 +92,7 @@ export function CertificateCard({ cert, studentName }: Props) {
     <div class="inner-border">
       <div class="corner tl"></div><div class="corner tr"></div>
       <div class="corner bl"></div><div class="corner br"></div>
-      <div class="logo">&#x6b;&#x64;&#x62;&#x627;&#x628; &#x627;&#x644;&#x631;&#x62d;&#x645;&#x646;</div>
+      <div class="logo">كُتَّاب الرحمن</div>
       <div class="sub">دار تحفيظ القرآن الكريم</div>
       <div class="divider"></div>
       <div class="basmala">بسم الله الرحمن الرحيم</div>
@@ -100,10 +102,12 @@ export function CertificateCard({ cert, studentName }: Props) {
       <div class="cert-title">${cert.title}</div>
       ${cert.description ? `<div class="desc">${cert.description}</div>` : ""}
       <div class="date">بتاريخ: ${dateStr}</div>
-      <div class="seal-row">
-        <div class="sign">توقيع الشيخ<br/>____________</div>
-        <div class="seal">ختم<br/>المؤسسة</div>
-        <div class="sign">مدير الكُتَّاب<br/>____________</div>
+      <div class="sign-row">
+        <div class="sign">
+          ${cert.sheikhSignature ? `<div class="name-line">${cert.sheikhSignature}</div>` : ""}
+          <div class="underline"></div>
+          <div style="margin-top:1mm">توقيع الشيخ</div>
+        </div>
       </div>
     </div>
   </div>
@@ -160,18 +164,14 @@ export function CertificateCard({ cert, studentName }: Props) {
 
           <p className="text-[11px] text-muted-foreground mt-2">بتاريخ: {dateStr}</p>
 
-          {/* Seal row */}
-          <div className="flex items-center justify-center gap-8 mt-3">
+          {/* Sheikh signature only */}
+          <div className="flex justify-center mt-3">
             <div className="text-center text-[10px] text-muted-foreground">
+              {cert.sheikhSignature && (
+                <p className="font-bold text-primary text-xs mb-1">{cert.sheikhSignature}</p>
+              )}
+              <p className="border-b border-muted-foreground/50 w-24 mx-auto mb-1" />
               <p>توقيع الشيخ</p>
-              <p className="border-b border-muted-foreground/40 mt-3 w-16 mx-auto" />
-            </div>
-            <div className="w-12 h-12 rounded-full border-2 border-primary flex items-center justify-center text-[9px] text-primary font-bold leading-tight">
-              ختم<br />المؤسسة
-            </div>
-            <div className="text-center text-[10px] text-muted-foreground">
-              <p>مدير الكُتَّاب</p>
-              <p className="border-b border-muted-foreground/40 mt-3 w-16 mx-auto" />
             </div>
           </div>
 

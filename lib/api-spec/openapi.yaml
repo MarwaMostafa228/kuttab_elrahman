@@ -926,6 +926,10 @@ components:
           type: ["integer", "null"]
         circleName:
           type: ["string", "null"]
+        circleSchedule:
+          type: ["string", "null"]
+        circleLink:
+          type: ["string", "null"]
         notes:
           type: ["string", "null"]
         guardianNotes:
@@ -1299,6 +1303,8 @@ components:
         title:
           type: string
         description:
+          type: ["string", "null"]
+        sheikhSignature:
           type: ["string", "null"]
         issuedAt:
           type: string

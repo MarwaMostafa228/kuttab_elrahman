@@ -61,6 +61,10 @@ export interface Student {
   /** @nullable */
   circleName?: string | null;
   /** @nullable */
+  circleSchedule?: string | null;
+  /** @nullable */
+  circleLink?: string | null;
+  /** @nullable */
   notes?: string | null;
   /** @nullable */
   guardianNotes?: string | null;
@@ -293,6 +297,8 @@ export interface Certificate {
   title: string;
   /** @nullable */
   description?: string | null;
+  /** @nullable */
+  sheikhSignature?: string | null;
   issuedAt: string;
   createdAt: string;
 }

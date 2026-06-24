@@ -9,6 +9,7 @@ export const certificates = pgTable("certificates", {
   title: text("title").notNull(),
   description: text("description"),
   issuedAt: date("issued_at", { mode: "string" }).notNull(),
+  sheikhSignature: text("sheikh_signature"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

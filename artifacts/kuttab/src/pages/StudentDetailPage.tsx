@@ -96,6 +96,7 @@ const certSchema = z.object({
   title: z.string().min(2, "عنوان الشهادة مطلوب"),
   description: z.string().optional(),
   issuedAt: z.string().min(1, "التاريخ مطلوب"),
+  sheikhSignature: z.string().optional(),
 });
 
 const STATUSES = ["حاضر", "غائب", "متأخر", "معذور"];
@@ -181,7 +182,7 @@ export default function StudentDetailPage({ id }: Props) {
 
   const certForm = useForm<z.infer<typeof certSchema>>({
     resolver: zodResolver(certSchema),
-    defaultValues: { title: "شهادة إتمام جزء", description: "", issuedAt: today },
+    defaultValues: { title: "شهادة إتمام جزء", description: "", issuedAt: today, sheikhSignature: "" },
   });
 
   const invalidateStudent = () => qc.invalidateQueries({ queryKey: getGetStudentQueryKey(id) });
@@ -191,7 +192,7 @@ export default function StudentDetailPage({ id }: Props) {
       onSuccess: () => {
         qc.invalidateQueries({ queryKey: getListCertificatesQueryKey({ studentId: id }) });
         setIsCertDialogOpen(false);
-        certForm.reset({ title: "شهادة إتمام جزء", description: "", issuedAt: today });
+        certForm.reset({ title: "شهادة إتمام جزء", description: "", issuedAt: today, sheikhSignature: "" });
         toast({ title: "تمت الإضافة", description: "تم إصدار الشهادة بنجاح" });
       },
     });
@@ -722,7 +723,7 @@ export default function StudentDetailPage({ id }: Props) {
                 <span className="text-xs text-muted-foreground">({certificates.length})</span>
               )}
             </div>
-            <Dialog open={isCertDialogOpen} onOpenChange={(o) => { setIsCertDialogOpen(o); if (!o) certForm.reset({ title: "شهادة إتمام جزء", description: "", issuedAt: today }); }}>
+            <Dialog open={isCertDialogOpen} onOpenChange={(o) => { setIsCertDialogOpen(o); if (!o) certForm.reset({ title: "شهادة إتمام جزء", description: "", issuedAt: today, sheikhSignature: "" }); }}>
               <DialogTrigger asChild>
                 <Button size="sm" className="gap-1.5">
                   <Plus className="w-4 h-4" /> إصدار شهادة
@@ -755,6 +756,13 @@ export default function StudentDetailPage({ id }: Props) {
                       <FormItem>
                         <FormLabel>النص المكتوب في الشهادة (اختياري)</FormLabel>
                         <FormControl><Input placeholder="مثال: بامتياز وإتقان تام..." {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={certForm.control} name="sheikhSignature" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>اسم الشيخ للتوقيع (اختياري)</FormLabel>
+                        <FormControl><Input placeholder="مثال: الشيخ أحمد محمد" {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />

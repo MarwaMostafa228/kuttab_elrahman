@@ -13,6 +13,8 @@ export interface Certificate {
   title: string;
   /** @nullable */
   description?: string | null;
+  /** @nullable */
+  sheikhSignature?: string | null;
   issuedAt: string;
   createdAt: string;
 }

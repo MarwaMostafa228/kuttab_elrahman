@@ -12,7 +12,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, CheckSquare, Calendar, Wallet, MessageSquare, Award } from "lucide-react";
+import { BookOpen, CheckSquare, Calendar, Wallet, MessageSquare, Award, Users, Clock, Link } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { CertificateCard } from "@/components/CertificateCard";
 
@@ -88,6 +88,45 @@ export default function StudentPortalPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Circle info */}
+      {student?.circleName && (
+        <Card className="mb-6 border-primary/20 bg-gradient-to-l from-primary/5 to-transparent">
+          <CardContent className="p-4">
+            <div className="flex flex-wrap items-center gap-4">
+              <div className="flex items-center gap-2">
+                <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                  <Users className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">حلقتي</p>
+                  <p className="font-bold text-primary">{student.circleName}</p>
+                </div>
+              </div>
+              {student.circleSchedule && (
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-secondary shrink-0" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">الموعد</p>
+                    <p className="text-sm font-medium">{student.circleSchedule}</p>
+                  </div>
+                </div>
+              )}
+              {student.circleLink && (
+                <a
+                  href={student.circleLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 text-sm font-medium text-secondary hover:text-secondary/80 underline underline-offset-2 transition-colors"
+                >
+                  <Link className="w-4 h-4" />
+                  رابط الحلقة الإلكترونية
+                </a>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Sheikh notes — visible to student */}
       {student?.notes && (

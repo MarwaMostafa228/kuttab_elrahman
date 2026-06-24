@@ -87,6 +87,8 @@ export const ListStudentsResponseItem = zod.object({
   "enrollmentDate": zod.string().nullish(),
   "circleId": zod.number().nullish(),
   "circleName": zod.string().nullish(),
+  "circleSchedule": zod.string().nullish(),
+  "circleLink": zod.string().nullish(),
   "notes": zod.string().nullish(),
   "guardianNotes": zod.string().nullish(),
   "createdAt": zod.string()
@@ -123,6 +125,8 @@ export const GetStudentResponse = zod.object({
   "enrollmentDate": zod.string().nullish(),
   "circleId": zod.number().nullish(),
   "circleName": zod.string().nullish(),
+  "circleSchedule": zod.string().nullish(),
+  "circleLink": zod.string().nullish(),
   "notes": zod.string().nullish(),
   "guardianNotes": zod.string().nullish(),
   "createdAt": zod.string()
@@ -155,6 +159,8 @@ export const UpdateStudentResponse = zod.object({
   "enrollmentDate": zod.string().nullish(),
   "circleId": zod.number().nullish(),
   "circleName": zod.string().nullish(),
+  "circleSchedule": zod.string().nullish(),
+  "circleLink": zod.string().nullish(),
   "notes": zod.string().nullish(),
   "guardianNotes": zod.string().nullish(),
   "createdAt": zod.string()
@@ -571,6 +577,7 @@ export const ListCertificatesResponseItem = zod.object({
   "studentName": zod.string(),
   "title": zod.string(),
   "description": zod.string().nullish(),
+  "sheikhSignature": zod.string().nullish(),
   "issuedAt": zod.string(),
   "createdAt": zod.string()
 })
