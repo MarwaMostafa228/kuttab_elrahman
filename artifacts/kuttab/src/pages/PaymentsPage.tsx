@@ -133,7 +133,7 @@ export default function PaymentsPage() {
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-emerald-800 mb-1">إجمالي المقبوضات (للفلتر الحالي)</p>
-              <h3 className="text-3xl font-bold text-emerald-900">{totalAmount} <span className="text-lg font-normal">ر.س</span></h3>
+              <h3 className="text-3xl font-bold text-emerald-900">{totalAmount} <span className="text-lg font-normal">ج.م</span></h3>
             </div>
             <div className="w-12 h-12 rounded-full bg-emerald-200/50 flex items-center justify-center text-emerald-700">
               <Wallet className="w-6 h-6" />
