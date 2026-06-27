@@ -1,0 +1,2 @@
+[build.environment]
+PORT = "5173"
